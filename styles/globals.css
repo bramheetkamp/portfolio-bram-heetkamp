@@ -1,0 +1,28 @@
+@import url("https://fonts.googleapis.com/css2?family=Hind:wght@400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+@import "./markdown.css";
+@import "./DarkMode.css";
+
+* {
+  font-family: "Hind";
+}
+
+body {
+    --color-background: #fafafa !important; 
+    --color-foreground: #1f2023 !important;
+  
+    --image-grayscale: 0;
+    --image-opacity: 100%;
+  }
+  
+/* @media (prefers-color-scheme: dark) { */
+  body.dark {
+    --color-background: #1f2023 !important;
+    --color-foreground: #efefef !important;
+    
+    --image-grayscale: 50%;
+    --image-opacity: 90%;    
+  }
+/* } */
