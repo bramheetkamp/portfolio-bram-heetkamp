@@ -1,4 +1,4 @@
-import { useRef } from "react";
+import { useRef, useState, useEffect } from "react";
 import { getAllPosts } from "../../utils/api";
 import { ISOToDate } from "../../utils";
 import Header from "../../components/Header";
@@ -7,13 +7,23 @@ import Head from "next/head";
 import { useIsomorphicLayoutEffect } from "../../utils";
 import { stagger } from "../../animations";
 import Button from "../../components/Button";
+import Cursor from "../../components/Cursor";
 
 const Blog = ({ posts }) => {
   const text = useRef();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
-    stagger([text.current], { y: 30 }, { y: 0 });
+    stagger(
+      [text.current],
+      { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
+      { y: 0, x: 0, transform: "scale(1)" }
+    );
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
   }, []);
 
   const createBlog = () => {
@@ -50,12 +60,15 @@ const Blog = ({ posts }) => {
   };
 
   return (
-    <>
+    <div className={"relative"}>
       <Head>
         <title>Blog</title>
       </Head>
-      <div className="container mx-auto mb-10">
-        <Header isBlog={true}></Header>
+
+      <div className="gradient-circle"></div>
+      <Cursor />
+      <div className="container mx-auto mb-10 cursor-none">
+        <Header isHome={true}></Header>
         <div className="mt-10">
           <h1
             ref={text}
@@ -106,7 +119,7 @@ const Blog = ({ posts }) => {
           </Button>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

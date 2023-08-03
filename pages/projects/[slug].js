@@ -9,6 +9,7 @@ import { stagger } from "../../animations";
 import Button from "../../components/Button";
 import ProjectEditor from "../../components/ProjectEditor";
 import { useRouter } from "next/router";
+import Cursor from "../../components/Cursor";
 
 const ProjectPage = ({ project }) => {
   const [showEditor, setShowEditor] = useState(false);
@@ -21,13 +22,16 @@ const ProjectPage = ({ project }) => {
   }, []);
 
   return (
-    <>
+    <div className={"relative"}>
       <Head>
         <title>{"Project - " + project.title}</title>
         <meta name="description" content={project.preview} />
       </Head>
-      <div className="container mx-auto mt-10">
-        <Header/>
+
+      <div className="gradient-circle"></div>
+      <Cursor />
+      <div className="container mx-auto mt-10 cursor-none">
+        <Header isHome/>
         <div className="mt-10 flex flex-col">
           <img
             className="w-full h-96 rounded-lg shadow-lg object-cover"
@@ -64,7 +68,7 @@ const ProjectPage = ({ project }) => {
           refresh={() => router.reload(window.location.pathname)}
         />
       )}
-    </>
+    </div>
   );
 };
 

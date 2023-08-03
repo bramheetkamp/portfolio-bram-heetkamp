@@ -1,10 +1,11 @@
 import fs from "fs";
 import matter from "gray-matter";
 import { join } from "path";
+import { v4 as uuidv4 } from "uuid";
 import { getRandomImage } from "../../../utils";
 
 export default function handler(req, res) {
-  const projectfolder = join(process.cwd(), `/_projects/${req.body.slug}.md`);
+  const projectfolder = join(process.cwd(), `/_projects/${uuidv4()}.md`);
   if (process.env.NODE_ENV === "development") {
     if (req.method === "POST") {
       const data = matter.stringify("# New Project", {

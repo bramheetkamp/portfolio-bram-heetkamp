@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { getAllProjects } from "../../utils/api";
 import Header from "../../components/Header";
 import Router, { useRouter } from "next/router";
@@ -6,30 +6,32 @@ import Head from "next/head";
 import { useIsomorphicLayoutEffect } from "../../utils";
 import { stagger } from "../../animations";
 import Button from "../../components/Button";
-import TextField from '@mui/material/TextField';
-import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
-import DialogContent from '@mui/material/DialogContent';
-import DialogTitle from '@mui/material/DialogTitle';
+import Cursor from "../../components/Cursor";
 
 const Project = ({ projects }) => {
   const text = useRef();
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
 
   useIsomorphicLayoutEffect(() => {
-    stagger([text.current], { y: 30 }, { y: 0 });
+    stagger(
+      [text.current],
+      { y: 40, x: -10, transform: "scale(0.95) skew(10deg)" },
+      { y: 0, x: 0, transform: "scale(1)" }
+    );
   }, []);
 
-  const createProject = (slug) => {
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  const createProject = () => {
     if (process.env.NODE_ENV === "development") {
       fetch("/api/project", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          slug,
-        }),
       }).then(() => {
         setOpen(false);
         router.reload(window.location.pathname);
@@ -57,18 +59,16 @@ const Project = ({ projects }) => {
     }
   };
 
-  const [open, setOpen] = useState(false);
-  const [projectSlug, setProjectSlug] = useState('');
-  const handleClickOpen = () => { setOpen(true); };
-  const handleClose = () => { setOpen(false); };
-
   return (
-    <>
+    <div className={"relative"}>
       <Head>
         <title>Work</title>
       </Head>
-      <div className="container mx-auto mb-10">
-        <Header></Header>
+
+      <div className="gradient-circle"></div>
+      <Cursor />
+      <div className="container mx-auto mt-10 cursor-none">
+        <Header isHome={true}></Header>
         <div className="mt-10">
           <h1
             ref={text}
@@ -82,7 +82,7 @@ const Project = ({ projects }) => {
                 <div
                   className="cursor-pointer relative"
                   key={project.slug}
-                  onClick={() => Router.push(`/project/${project.slug}`)}
+                  onClick={() => Router.push(`/projects/${project.slug}`)}
                 >
                   <img
                     className="w-full h-60 rounded-lg shadow-lg object-cover"
@@ -111,32 +111,12 @@ const Project = ({ projects }) => {
       </div>
       {process.env.NODE_ENV === "development" && (
         <div className="fixed bottom-6 right-6">
-          <Button onClick={handleClickOpen} type={"primary"}>
-            Add New Project +{" "}
+          <Button onClick={createProject} type={"primary"}>
+            Add New PoProjectst +{" "}
           </Button>
-          <Dialog open={open} onClose={handleClose}>
-            <DialogTitle>New project</DialogTitle>
-            <DialogContent>
-              <TextField
-                autoFocus
-                margin="dense"
-                id="project"
-                label="Project Slug"
-                type="text"
-                fullWidth
-                variant="standard"
-                value={projectSlug}
-                onChange={(event) => {setProjectSlug(event.target.value)}}
-              />
-            </DialogContent>
-            <DialogActions>
-              <Button onClick={() => handleClose} type={"primary"}>Cancel</Button>
-              <Button onClick={() => createProject(projectSlug)} type={"primary"}>Create</Button>
-            </DialogActions>
-          </Dialog>
         </div>
       )}
-    </>
+    </div>
   );
 };
 

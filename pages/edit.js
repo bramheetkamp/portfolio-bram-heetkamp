@@ -3,15 +3,24 @@ import { useRouter } from "next/router";
 import Button from "../components/Button";
 import Header from "../components/Header";
 import { v4 as uuidv4 } from "uuid";
+import { useTheme } from "next-themes";
 
 // Data
 import yourData from "../data/portfolio.json";
-import { redirect } from "next/dist/server/api-utils";
+import Cursor from "../components/Cursor";
 
 const Edit = () => {
   // states
   const [data, setData] = useState(yourData);
+  const { theme } = useTheme();
   const [currentTabs, setCurrentTabs] = useState("HEADER");
+  const router = useRouter();
+
+  useEffect (() => {
+    if (process.env.NODE_ENV !== "development") {
+      router.push("/");
+    };
+  }, []);
 
   const saveData = () => {
     if (process.env.NODE_ENV === "development") {
@@ -58,22 +67,22 @@ const Edit = () => {
     setData({ ...data, projects: copyProjects });
   };
 
-  // Services Handler
+  // Skills Handler
 
-  const editServices = (serviceIndex, editService) => {
-    let copyServices = data.services;
-    copyServices[serviceIndex] = { ...editService };
-    setData({ ...data, services: copyServices });
+  const editSkills = (skillIndex, editSkill) => {
+    let copySkills = data.skills;
+    copySkills[skillIndex] = { ...editSkill };
+    setData({ ...data, skills: copySkills });
   };
 
-  const addService = () => {
+  const addSkill = () => {
     setData({
       ...data,
-      services: [
-        ...data.services,
+      skills: [
+        ...data.skills,
         {
           id: uuidv4(),
-          title: "New Service",
+          title: "New Skill",
           description:
             "Lorem Ipsum is simply dummy text of the printing and typesetting industry. ",
         },
@@ -81,10 +90,10 @@ const Edit = () => {
     });
   };
 
-  const deleteService = (id) => {
-    const copyServices = data.services;
-    copyServices = copyServices.filter((service) => service.id !== id);
-    setData({ ...data, services: copyServices });
+  const deleteSkill = (id) => {
+    const copySkills = data.skills;
+    copySkills = copySkills.filter((skill) => skill.id !== id);
+    setData({ ...data, skills: copySkills });
   };
 
   // Socials Handler
@@ -115,19 +124,47 @@ const Edit = () => {
     setData({ ...data, socials: copySocials });
   };
 
-  const router = useRouter();
+  // Resume
 
-  useEffect (() => {
-    if (process.env.NODE_ENV !== "development") {
-      router.push("/");
-    };
-  }, []);
+  const handleAddExperiences = () => {
+    setData({
+      ...data,
+      resume: {
+        ...data.resume,
+        experiences: [
+          ...data.resume.experiences,
+          {
+            id: uuidv4(),
+            dates: "Enter Dates",
+            type: "Full Time",
+            position: "Frontend Engineer at X",
+            bullets: "Worked on the frontend of a React application",
+          },
+        ],
+      },
+    });
+  };
+
+  const handleEditExperiences = (index, editExperience) => {
+    let copyExperiences = data.resume.experiences;
+    copyExperiences[index] = { ...editExperience };
+    setData({
+      ...data,
+      resume: { ...data.resume, experiences: copyExperiences },
+    });
+  };
+
+  const deleteExperience = (id) => {
+    const copyExperiences = data.resume.experiences;
+    copyExperiences = copyExperiences.filter((experience) => experience.id !== id);
+    setData({ ...data, socials: copyExperiences });
+  };
 
   return (
-    <div className="container mx-auto">
-      <Header></Header>
+    <div className={`container mx-auto cursor-none`}>
+      <Header isHome></Header>
       <div className="mt-10">
-        <div className="bg-white z-10 sticky top-12">
+        <div className={`${theme === "dark" ? "bg-transparent" : "bg-white"}`}>
           <div className="flex items-center justify-between">
             <h1 className="text-4xl">Dashboard</h1>
             <div className="flex items-center">
@@ -151,10 +188,10 @@ const Edit = () => {
               Projects
             </Button>
             <Button
-              onClick={() => setCurrentTabs("SERVICES")}
-              type={currentTabs === "SERVICES" && "primary"}
+              onClick={() => setCurrentTabs("SKILLS")}
+              type={currentTabs === "SKILLS" && "primary"}
             >
-              Services
+              Skills
             </Button>
             <Button
               onClick={() => setCurrentTabs("ABOUT")}
@@ -167,6 +204,12 @@ const Edit = () => {
               type={currentTabs === "SOCIAL" && "primary"}
             >
               Social
+            </Button>
+            <Button
+              onClick={() => setCurrentTabs("RESUME")}
+              type={currentTabs === "RESUME" && "primary"}
+            >
+              Resume
             </Button>
           </div>
         </div>
@@ -233,25 +276,6 @@ const Edit = () => {
                 className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
                 type="text"
               ></input>
-            </div>
-            <div className="mt-5 flex items-center">
-              <label className="w-1/5 text-lg opacity-50">Blog</label>
-              <div className="w-4/5 ml-10 flex items-center">
-                <Button
-                  onClick={() => setData({ ...data, showBlog: true })}
-                  type={data.showBlog && "primary"}
-                >
-                  Yes
-                </Button>
-                <Button
-                  onClick={() => setData({ ...data, showBlog: false })}
-                  classes={
-                    !data.showBlog && "bg-red-500 text-white hover:bg-red-600"
-                  }
-                >
-                  No
-                </Button>
-              </div>
             </div>
           </div>
         )}
@@ -343,16 +367,16 @@ const Edit = () => {
             </div>
           </>
         )}
-        {/* SERVICES */}
-        {currentTabs === "SERVICES" && (
+        {/* SKILLS */}
+        {currentTabs === "SKILLS" && (
           <>
             <div className="mt-10">
-              {data.services.map((service, index) => (
-                <div key={service.id}>
+              {data.skills.map((skill, index) => (
+                <div key={skill.id}>
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl">{service.title}</h1>
+                    <h1 className="text-2xl">{skill.title}</h1>
                     <Button
-                      onClick={() => deleteService(service.id)}
+                      onClick={() => deleteSkill(skill.id)}
                       type="primary"
                     >
                       Delete
@@ -361,10 +385,10 @@ const Edit = () => {
                   <div className="flex items-center mt-5">
                     <label className="w-1/5 text-lg opacity-50">Title</label>
                     <input
-                      value={service.title}
+                      value={skill.title}
                       onChange={(e) =>
-                        editServices(index, {
-                          ...service,
+                        editSkills(index, {
+                          ...skill,
                           title: e.target.value,
                         })
                       }
@@ -377,10 +401,10 @@ const Edit = () => {
                       Description
                     </label>
                     <textarea
-                      value={service.description}
+                      value={skill.description}
                       onChange={(e) =>
-                        editServices(index, {
-                          ...service,
+                        editSkills(index, {
+                          ...skill,
                           description: e.target.value,
                         })
                       }
@@ -392,8 +416,8 @@ const Edit = () => {
               ))}
             </div>
             <div className="my-10">
-              <Button onClick={addService} type="primary">
-                Add Service +
+              <Button onClick={addSkill} type="primary">
+                Add Skill +
               </Button>
             </div>
           </>
@@ -458,6 +482,361 @@ const Edit = () => {
               <Button onClick={addSocials} type="primary">
                 Add Social +
               </Button>
+            </div>
+          </div>
+        )}
+        {currentTabs === "RESUME" && (
+          <div className="mt-10">
+            <h1>Main</h1>
+            <div className="mt-5 flex items-center">
+              <label className="w-1/5 text-sx opacity-50">Tagline</label>
+              <input
+                value={data.resume.tagline}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    resume: { ...data.resume, tagline: e.target.value },
+                  })
+                }
+                className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                type="text"
+              ></input>
+            </div>
+            <div className="flex items-center mt-5">
+              <label className="w-1/5 text-lg opacity-50">Description</label>
+              <textarea
+                value={data.resume.description}
+                onChange={(e) =>
+                  setData({
+                    ...data,
+                    resume: { ...data.resume, description: e.target.value },
+                  })
+                }
+                className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+              ></textarea>
+            </div>
+            <hr className="my-10"></hr>
+
+            <h1>Experiences</h1>
+            <div className="mt-10">
+              {data.resume.experiences.map((experience, index) => (
+                <div className="mt-5" key={experience.id}>
+                  <div className="flex items-center justify-between">
+                    <h1 className="text-2xl">{experience.position}</h1>
+                      <Button
+                        onClick={() => deleteExperience(experience.id)}
+                        type="primary"
+                      >
+                        Delete
+                      </Button>
+                  </div>
+
+                  <div className="flex items-center mt-5">
+                    <label className="w-1/5 text-lg opacity-50">Dates</label>
+                    <input
+                      value={experience.dates}
+                      onChange={(e) =>
+                        handleEditExperiences(index, {
+                          ...experience,
+                          dates: e.target.value,
+                        })
+                      }
+                      className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                      type="text"
+                    ></input>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <label className="w-1/5 text-lg opacity-50">Type</label>
+                    <input
+                      value={experience.type}
+                      onChange={(e) =>
+                        handleEditExperiences(index, {
+                          ...experience,
+                          type: e.target.value,
+                        })
+                      }
+                      className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                      type="text"
+                    ></input>
+                  </div>
+                  <div className="flex items-center mt-2">
+                    <label className="w-1/5 text-lg opacity-50">Position</label>
+                    <input
+                      value={experience.position}
+                      onChange={(e) =>
+                        handleEditExperiences(index, {
+                          ...experience,
+                          position: e.target.value,
+                        })
+                      }
+                      className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                      type="text"
+                    ></input>
+                  </div>
+                  <div className="mt-2 flex">
+                    <label className="w-1/5 text-lg opacity-50">Bullets</label>
+                    <div className="w-4/5 ml-10 flex flex-col">
+                      <input
+                        value={experience.bullets}
+                        onChange={(e) =>
+                          handleEditExperiences(index, {
+                            ...experience,
+                            bullets: e.target.value,
+                          })
+                        }
+                        placeholder="Bullet One, Bullet Two, Bullet Three"
+                        className="p-2 rounded-md shadow-lg border-2"
+                        type="text"
+                      ></input>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="my-10">
+              <Button onClick={handleAddExperiences} type="primary">
+                Add Experience +
+              </Button>
+            </div>
+            <hr className="my-10"></hr>
+            <div className="mt-10">
+              <h1>Education</h1>
+              <div className="flex items-center mt-5">
+                <label className="w-1/5 text-lg opacity-50">Name</label>
+                <input
+                  value={data.resume.education.universityName}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      resume: {
+                        ...data.resume,
+                        education: {
+                          ...data.resume.education,
+                          universityName: e.target.value,
+                        },
+                      },
+                    })
+                  }
+                  className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                  type="text"
+                ></input>
+              </div>
+              <div className="flex items-center mt-5">
+                <label className="w-1/5 text-lg opacity-50">Dates</label>
+                <input
+                  value={data.resume.education.universityDate}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      resume: {
+                        ...data.resume,
+                        education: {
+                          ...data.resume.education,
+                          universityDate: e.target.value,
+                        },
+                      },
+                    })
+                  }
+                  className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                  type="text"
+                ></input>
+              </div>
+              <div className="flex items-center mt-5">
+                <label className="w-1/5 text-lg opacity-50">Detail</label>
+                <input
+                  value={data.resume.education.universityPara}
+                  onChange={(e) =>
+                    setData({
+                      ...data,
+                      resume: {
+                        ...data.resume,
+                        education: {
+                          ...data.resume.education,
+                          universityPara: e.target.value,
+                        },
+                      },
+                    })
+                  }
+                  className="w-4/5 ml-10 p-2 rounded-md shadow-lg border-2"
+                  type="text"
+                ></input>
+              </div>
+            </div>
+            <hr className="my-10"></hr>
+            <div className="mt-10">
+              <div className="flex">
+                <label className="w-1/5 text-lg opacity-50">Languages</label>
+                <div className="w-4/5 ml-10 flex flex-col">
+                  {data.resume.languages.map((language, index) => (
+                    <div key={index} className="flex">
+                      <input
+                        value={language}
+                        onChange={(e) => {
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              languages: [
+                                ...data.resume.languages.slice(0, index),
+                                e.target.value,
+                                ...data.resume.languages.slice(index + 1),
+                              ],
+                            },
+                          });
+                        }}
+                        className="w-full p-2 rounded-md shadow-lg border-2"
+                        type="text"
+                      ></input>
+                      <Button
+                        onClick={() =>
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              languages: data.resume.languages.filter(
+                                (value, i) => index !== i
+                              ),
+                            },
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    type="primary"
+                    classes="hover:scale-100"
+                    onClick={() =>
+                      setData({
+                        ...data,
+                        resume: {
+                          ...data.resume,
+                          languages: [...data.resume.languages, "Added"],
+                        },
+                      })
+                    }
+                  >
+                    Add +
+                  </Button>
+                </div>
+              </div>
+              <hr className="my-10"></hr>
+              <div className="flex">
+                <label className="w-1/5 text-lg opacity-50">Frameworks</label>
+                <div className="w-4/5 ml-10 flex flex-col">
+                  {data.resume.frameworks.map((framework, index) => (
+                    <div key={index} className="flex">
+                      <input
+                        value={framework}
+                        onChange={(e) => {
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              frameworks: [
+                                ...data.resume.frameworks.slice(0, index),
+                                e.target.value,
+                                ...data.resume.frameworks.slice(index + 1),
+                              ],
+                            },
+                          });
+                        }}
+                        className="w-full p-2 rounded-md shadow-lg border-2"
+                        type="text"
+                      ></input>
+                      <Button
+                        onClick={() =>
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              frameworks: data.resume.frameworks.filter(
+                                (value, i) => index !== i
+                              ),
+                            },
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    onClick={() =>
+                      setData({
+                        ...data,
+                        resume: {
+                          ...data.resume,
+                          frameworks: [...data.resume.frameworks, "Added"],
+                        },
+                      })
+                    }
+                    type="primary"
+                    classes="hover:scale-100"
+                  >
+                    Add +
+                  </Button>
+                </div>
+              </div>
+              <hr className="my-10"></hr>
+              <div className="flex">
+                <label className="w-1/5 text-lg opacity-50">Others</label>
+                <div className="w-4/5 ml-10 flex flex-col">
+                  {data.resume.others.map((other, index) => (
+                    <div key={index} className="flex">
+                      <input
+                        value={other}
+                        onChange={(e) => {
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              others: [
+                                ...data.resume.others.slice(0, index),
+                                e.target.value,
+                                ...data.resume.others.slice(index + 1),
+                              ],
+                            },
+                          });
+                        }}
+                        className="w-full p-2 rounded-md shadow-lg border-2"
+                        type="text"
+                      ></input>
+                      <Button
+                        onClick={() =>
+                          setData({
+                            ...data,
+                            resume: {
+                              ...data.resume,
+                              others: data.resume.others.filter(
+                                (value, i) => index !== i
+                              ),
+                            },
+                          })
+                        }
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                  <Button
+                    onClick={() =>
+                      setData({
+                        ...data,
+                        resume: {
+                          ...data.resume,
+                          others: [...data.resume.others, "Added"],
+                        },
+                      })
+                    }
+                    type="primary"
+                    classes="hover:scale-100"
+                  >
+                    Add +
+                  </Button>
+                </div>
+              </div>
             </div>
           </div>
         )}

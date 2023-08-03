@@ -9,6 +9,7 @@ import { stagger } from "../../animations";
 import Button from "../../components/Button";
 import BlogEditor from "../../components/BlogEditor";
 import { useRouter } from "next/router";
+import Cursor from "../../components/Cursor";
 
 const BlogPost = ({ post }) => {
   const [showEditor, setShowEditor] = useState(false);
@@ -21,13 +22,16 @@ const BlogPost = ({ post }) => {
   }, []);
 
   return (
-    <>
+    <div className={"relative"}>
       <Head>
         <title>{"Blog - " + post.title}</title>
         <meta name="description" content={post.preview} />
       </Head>
-      <div className="container mx-auto mt-10">
-        <Header isBlog={true} />
+
+      <div className="gradient-circle"></div>
+      <Cursor />
+      <div className="container mx-auto mt-10 cursor-none">
+        <Header isHome={true} />
         <div className="mt-10 flex flex-col">
           <img
             className="w-full h-96 rounded-lg shadow-lg object-cover"
@@ -64,7 +68,7 @@ const BlogPost = ({ post }) => {
           refresh={() => router.reload(window.location.pathname)}
         />
       )}
-    </>
+    </div>
   );
 };
 
